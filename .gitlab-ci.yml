@@ -1,0 +1,39 @@
+image: python:latest
+
+stages:
+- test
+
+1-exec_MT_1:
+  script: python3 test-1-exec_MT_1.py
+
+2-M_ex2:
+  script: python3 test-2-M_ex2.py
+
+3-Misneg:
+  script: python3 test-3-Misneg.py
+
+4-make_seq_MT:
+  script: python3 test-4-make_seq_MT.py
+
+5-M_opp_bin:
+  script: python3 test-5-M_opp_bin.py
+
+6-make-cond-MT:
+  script: python3 test-6-make-cond-MT.py
+
+7-make_loop:
+  script: python3 test-7-make_loop.py
+
+8-machines:
+  script: python3 test-8-machines.py
+
+9-exec_MT_k:
+  script: python3 test-9-exec_MT_k.py
+
+10-M2_palin_bin:
+  script: python3 test-10-M2_palin_bin.py
+
+11-M2_un-to-bin.py:
+  script: python3 test-11-M2_un-to-bin.py
+
+
