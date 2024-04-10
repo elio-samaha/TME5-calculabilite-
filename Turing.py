@@ -58,11 +58,52 @@ def print_config_1(L,t,q,qok,qko):
 # Execution d'une machine de Turing deterministe a 1 bande
 #---------------------------------------------------------
 
-def exec_MT_1(M,L,i0):
+def exec_MT_1(M,L,i):
     # M : machine de Turing deterministe a 1 bande
     # L : liste representant la bande initiale
     # i0 : position initiale de la tete de lecture
-    return
+    (delta , q0, qok, qko) = M
+    curr = q0
+    i0 = i
+    Mv = "R"
+    print_config_1(L,i0,curr,qok,qko)
+    while curr != qko and curr != qok :
+        if assoc_f(delta,(curr,L[i0])) == None :
+            curr = qko
+            break
+        (curr, L[i0], Mv) = assoc_f(delta,(curr,L[i0]))
+        if Mv == "R" :
+            i0 += 1
+
+        if Mv == "L" :
+            i0 -= 1
+
+        if i0 >= len(L) :
+            L.append("Z")
+        if i0 < 0 :
+            i0 = 0
+        print_config_1(L,i0,curr,qok,qko)
+
+    return ((curr == qok),i0,L)
+
+# Exo 2 (Fait deja en Amphi mais avec 2 bandes. Pour une bande on va faire des allers retours : 
+#A chaque fois qu on lit un "a" on le marque en X et on va aller chercher un "b" si on ne trouve pas de b on va vers qko 
+#et si on a plus de "a" mais qu il reste des "b" on va vers qko et sinon si on a coche tout les "a" avec des X 
+#et tous les "b" avec des Y c est que c est bon, on part vers qok)
+
+
+l_ex2 = [((0,"Z"),(1,"Z","R")), # cas ou c est bon tout a ete coche ou si c est le mot vide (qok = 1)
+         ((0,"a"),(2,"X","R")), ((0,"b"),(3,"Y","R")), # si on lit un a donc on doit chercher un b et si on lit un b on doit chercher un a 
+         ((0,"X"),(0,"X","R")),((0,"Y"),(0,"Y","R")),  #Pour bien se placer dans la bande on passe par ce qu on a deja lu
+         ((2,"a"),(2,"a","R")), ((3,"b"),(3,"b","R")),((3,"X"),(3,"X","R")), ((3,"Y"),(3,"Y","R")), ((2,"Y"),(2,"Y","R")),
+             ((2,"X"),(2,"X","R")),  #quand on a deja lu la 1ere lettre et on cherche l'autre on ne doit pas changer la bande tant qu on pas trouver l autre lettre
+         ((2,"b"),(4,"Y","L")), ((3,"a"),(5,"X","L")), # On a trouve l autre caractere (si on est en q2 on doit trouver un "b" , en q3 un "a")
+         ((4,"a"),(4,"a","L")),((4,"Y"),(4,"Y","L")), ((5,"b"),(5,"b","L")), ((5,"X"),(5,"X","L")), # On se replace (en cherchant la 1ere case non lu selon si on est sur q4 ou q5, cf ligne suivante), 
+         ((4,"X"),(0,"X","R")), ((5,"Y"),(0,"Y","R"))] # si on est a q4 on se replace en trouvant le 1er "a" non lu, celui ci se trouve apres (mais peut etre pas directement apres : ex abba) le dernier X qu on a mit (de meme pour q5, b et Y)
+
+M_ex2 = (l_ex2 , 0 , 1 , 6) #qko = 6
+
+# Exo 3
 
 
 #============================================================#
