@@ -103,8 +103,21 @@ l_ex2 = [((0,"Z"),(1,"Z","R")), # cas ou c est bon tout a ete coche ou si c est 
 
 M_ex2 = (l_ex2 , 0 , 1 , 6) #qko = 6
 
-# Exo 3
+# Exo 3 : On va parcourir la bande et decaler a chaque fois le symbole de bande a droite en memorisant le dernier symbole 
+#ex: q11 veut dire que j ai lu un 1 en dernier et q10 veut dire que j ai lu un 0 en dernier
 
+d_isneg = [((0,"Z"),(6,"Z","R")), # cas de base 
+           ((0,"1"),(11,"Z","R")),((0,"0"),(10,"Z","R")), #1ere lecture
+           ((11,"1"),(11,"1","R")),((10,"0"),(10,"0","R")), # on a lu deux 1 ou deux 0 consecutifs, rien a changer/decaler car deja fait indirectement
+           ((11,"0"),(10,"1","R")), ((10,"1"),(11,"0","R")), # on avait lu un 1 (q11) et on lit un zero alors le zero devient un 1 et on change d etat car mtn le dernier symbole lu est 0 et pas 1 (et inversement pour q10) 
+           ((11,"Z"),(2,"1","R")), ((10,"Z"),(2,"0","R")), # Je suis a la fin du mot et j ecris le dernier symbole 
+           ((2,"Z"),(3,"Z","L")), # je me replace
+           ((3,"1"),(41,"1","L")), ((3,"0"),(40,"0","L")), # Selon si j ai lu comme dernier caractere un 1 ou 0 je change d etat (40 pour 0 et 41 pour 1) 40 servira comme faux et 41 comme vrai car c est vraie ssi w se termine par 1
+           ((41,"1"),(41,"1","L")),((41,"0"),(41,"0","L")), ((40,"1"),(40,"1","L")),((40,"0"),(40,"0","L")), # on se replace au debut
+           ((41,"Z"),(6,"Z","R")), # quand on arrive au debut et qu on vient de 41 alors c est bon, on renvoie True
+           ((40,"Z"),(5,"Z","R")) ] # uand on arrive au debut et qu on vient de 40 alors c est *pas* bon, on revoie False  
+
+M_isneg = (d_isneg, 0 , 6 , 5) #qko = 5
 
 #============================================================#
 # Composition de machines de Turing                          #
