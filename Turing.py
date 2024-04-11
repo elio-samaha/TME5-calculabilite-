@@ -106,7 +106,7 @@ M_ex2 = (l_ex2 , 0 , 1 , 6) #qko = 6
 # Exo 3 : On va parcourir la bande et decaler a chaque fois le symbole de bande a droite en memorisant le dernier symbole 
 #ex: q11 veut dire que j ai lu un 1 en dernier et q10 veut dire que j ai lu un 0 en dernier
 
-d_isneg = [((0,"Z"),(6,"Z","R")), # cas de base 
+d_isneg = [((0,"Z"),(5,"Z","R")), # si vide alors faux 
            ((0,"1"),(11,"Z","R")),((0,"0"),(10,"Z","R")), #1ere lecture
            ((11,"1"),(11,"1","R")),((10,"0"),(10,"0","R")), # on a lu deux 1 ou deux 0 consecutifs, rien a changer/decaler car deja fait indirectement
            ((11,"0"),(10,"1","R")), ((10,"1"),(11,"0","R")), # on avait lu un 1 (q11) et on lit un zero alors le zero devient un 1 et on change d etat car mtn le dernier symbole lu est 0 et pas 1 (et inversement pour q10) 
