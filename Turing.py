@@ -9,6 +9,7 @@
 # Machines de Turing deterministes a 1 bande                          #
 #=====================================================================#
 
+from ensembles import *
 
 # Fonction associee a une liste representant une fonction sur un domaine fini
 #----------------------------------------------------------------------------
@@ -81,6 +82,7 @@ def exec_MT_1(M,L,i):
         if i0 >= len(L) :
             L.append("Z")
         if i0 < 0 :
+            L.insert(0 , "Z")
             i0 = 0
         print_config_1(L,i0,curr,qok,qko)
 
@@ -201,6 +203,7 @@ M_prop1 =(d_prop1,0,4,5)
 # Composition de machines de Turing : sequence
 #---------------------------------------------
 
+
 def exec_seq_MT_1(M1,M2,L,i1):
     (b,i2,L2)=exec_MT_1(M1,L,i1)
     if b:
@@ -208,9 +211,79 @@ def exec_seq_MT_1(M1,M2,L,i1):
     else:
         return (b,i2,L2)
 
-def make_seq_MT(M1,M2):
+def alphabet(M):
+    (d,q0,qok,qko) = M
+    res = set()
+    for u,v in d:
+        res.add(u[1])
+        res.add(v[1])
+    return res
+
+
+def make_seq_MT(M1,M2):                     # Ex : ((0,"0"),(1,"0","R")) ----> (((1, 0),"0"),((1 , 1),"0","R"))
     # M1,M2 : machines de Turing deterministes a 1 bande
-    return
+    
+    d = []
+    d2 = M2[0]
+    
+    l1 = [(x1,x2) for (x1,x2) in M1[0] if x2[0] != M1[2] and x2[0] != M1[3]]
+    
+    
+    l12 = union(eq_atom , [(x1, (M2[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[2]] , [])
+    l12 = union(eq_atom , [(x1, (M2[3] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[3]] , l12)
+
+    if M1[0] == []:
+        if M1[1] == M1[2]:
+            l12 = union(eq_atom , [((M1[1] , a) , (M1[2] , a , "R")) for a in alphabet(M2)] , l12)
+            l12 = union(eq_atom , [((M1[2] , a) , (M2[1] , a , "L")) for a in alphabet(M2)] , l12)
+        if M1[1] == M1[3]:
+            l12 = union(eq_atom , [((M1[1] , a) , (M2[3] , a , "R")) for a in alphabet(M2)] , l12)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l1 : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (1,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in d2 : 
+        tmp = x1
+        x = (2,tmp)
+        tmp = y1
+        y = (2,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l12 : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (2,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    q0 = (1 , M1[1])
+    qok = (2 , M2[2])
+    qko = (2 , M2[3])
+
+    return (d, q0 , qok , qko)
+
+d_succ_un = [((0,"I"),(0,"I","R")), ((0,"Z"),(1,"I","L")), \
+             ((1,"I"),(1,"I","L")), ((1,"Z"),(2,"Z","R"))]
+M_succ_un = (d_succ_un,0,2,3)
+
+# M = (d,q0,qok,qko)
+# d = ((q,a),(q',a',m))
+"""
+d_id = []
+M_id = (d_id, 0, 0, 1)
+
+(d_comp,q0_comp,qok_comp,qko_comp) = make_seq_MT(M_id,M_succ_un)
+
+print((d_comp,q0_comp,qok_comp,qko_comp) , "\n")
+
+(b3,i3,L3) = exec_MT_1((d_comp,q0_comp,qok_comp,qko_comp), ["I","I","I","I","Z"],0)
+
+print((b3,i3,L3))
+"""
 
 # Composition de machines de Turing : conditionnelle
 #---------------------------------------------------
