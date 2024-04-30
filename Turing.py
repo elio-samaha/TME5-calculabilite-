@@ -119,7 +119,13 @@ d_isneg = [((0,"Z"),(5,"Z","R")), # si vide alors faux
            ((41,"Z"),(6,"Z","R")), # quand on arrive au debut et qu on vient de 41 alors c est bon, on renvoie True
            ((40,"Z"),(5,"Z","R")) ] # uand on arrive au debut et qu on vient de 40 alors c est *pas* bon, on revoie False  
 
-M_isneg = (d_isneg, 0 , 6 , 5) #qko = 5
+#M_isneg = (d_isneg, 0 , 6 , 5) #qko = 5
+
+# Alternative avec une meilleur numerotation
+
+d_isneg2 = [((0 ,  '0'), (1, '0', 'R')), ((0, '1'), (2, '1', 'R')), ((1, '0'), (1, '0', 'R')), ((1, '1'), (2, '1', 'R')), ((1, 'Z'), (3, 'Z', 'L')), ((2, '0'), (1, '0', 'R')), ((2, '1'), (2, '1', 'R')), ((2, 'Z'), (4, 'Z', 'L')), ((3, '0'), (3, '0', 'L')), ((3, '1'), (3, '1', 'L')), ((3, 'Z'), (5, 'Z', 'R')), ((4, '0'), (4, '0', 'L')), ((4, '1'), (4, '1', 'L')), ((4, 'Z'), (6, 'Z', 'R'))]
+M_isneg = (d_isneg2, 0 , 6 , 5) #qko = 5
+
 
 #============================================================#
 # Composition de machines de Turing                          #
@@ -227,17 +233,18 @@ def make_seq_MT(M1,M2):                     # Ex : ((0,"0"),(1,"0","R")) ----> (
     d2 = M2[0]
     
     l1 = [(x1,x2) for (x1,x2) in M1[0] if x2[0] != M1[2] and x2[0] != M1[3]]
-    
+
+    alphab = alphabet(M2)
     
     l12 = union(eq_atom , [(x1, (M2[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[2]] , [])
     l12 = union(eq_atom , [(x1, (M2[3] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[3]] , l12)
 
     if M1[0] == []:
         if M1[1] == M1[2]:
-            l12 = union(eq_atom , [((M1[1] , a) , (M1[2] , a , "R")) for a in alphabet(M2)] , l12)
-            l12 = union(eq_atom , [((M1[2] , a) , (M2[1] , a , "L")) for a in alphabet(M2)] , l12)
+            l12 = union(eq_atom , [((M1[1] , a) , (M1[2] , a , "R")) for a in alphab] , l12)
+            l12 = union(eq_atom , [((M1[2] , a) , (M2[1] , a , "L")) for a in alphab] , l12)
         if M1[1] == M1[3]:
-            l12 = union(eq_atom , [((M1[1] , a) , (M2[3] , a , "R")) for a in alphabet(M2)] , l12)
+            l12 = union(eq_atom , [((M1[1] , a) , (M2[3] , a , "R")) for a in alphab] , l12)
 
     for ((x1,x2),(y1 , y2 , y3)) in l1 : 
         tmp = x1
@@ -296,9 +303,98 @@ def exec_cond_MT_1(MC,M1,M2,L,i0):
         return exec_MT_1(M2,Lc,ic)
 
 
+d_compl_bin = [((0,"0"),(0,"1","R")), ((0,"1"),(0,"0","R")), ((0,"Z"),(1,"Z","L")), ((1,"0"),(1,"0","L")), ((1,"1"),(1,"1","L")), ((1,"Z"),(2,"Z","R"))] 
+M_compl_bin = (d_compl_bin,0,2,3)
+
+d_succ_bin = [((0,"0"),(1,"1","L")), ((0,"1"),(0,"0","R")), ((0,"Z"),(2,"1","R")), ((1,"0"),(1,"0","L")), ((1,"1"),(1,"1","L")), ((1,"Z"),(3,"Z","R")), ((2,"Z"),(1,"Z","L"))] 
+M_succ_bin = (d_succ_bin,0,3,4)
+
+M_opp_int_bin = make_seq_MT(M_compl_bin , M_succ_bin)
+
+#print(exec_seq_MT_1(M_compl_bin,M_succ_bin,["1","0","1","0"],0) , "\n" , exec_MT_1(M_opp_int_bin,["1","1","0","1"],0))
+
+# M = (d,q0,qok,qko)
+# d = ((q,a),(q',a',m))
+
 def make_cond_MT(MC,M1,M2):
     # MC, M1, M2 : machines de Turing deterministes a 1 bande
-    return
+    d = []
+    d2 = M2[0]
+
+    alphab = alphabet(M2)
+
+    l0  = [(x1,x2) for (x1,x2) in MC[0] if x2[0] != MC[2] and x2[0] != MC[3]]
+    l01 = [(x1, (M1[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in MC[0] if y1 == MC[2]] 
+    l02 = [(x1, (M2[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in MC[0] if y1 == MC[3]] 
+    
+    l1 = [(x1,x2) for (x1,x2) in M1[0] if x2[0] != M1[2] and x2[0] != M1[3]]   
+    l12 = union(eq_atom , [(x1, (M2[2] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[2]] , [])
+    l12 = union(eq_atom , [(x1, (M2[3] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M1[0] if y1 == M1[3]] , l12)
+
+    if M1[0] == []:
+        if M1[1] == M1[2]:
+            l12 = union(eq_atom , [((M1[1] , a) , (M2[2] , a , "R")) for a in alphab] , l12)
+        if M1[1] == M1[3]:
+            l12 = union(eq_atom , [((M1[1] , a) , (M2[3] , a , "R")) for a in alphab] , l12)
+
+    if MC[0] == []:
+        if MC[1] == MC[2]:
+            l0 = union(eq_atom , [((MC[1] , a) , (MC[2] , a , "R")) for a in alphab] , l0)
+            l01 = union(eq_atom , [((MC[2] , a) , (M1[1] , a , "L")) for a in alphab] , l01)
+        if MC[1] == MC[3]:
+            l0 = union(eq_atom , [((MC[1] , a) , (MC[3] , a , "R")) for a in alphab] , l0)
+            l02 = union(eq_atom , [((MC[3] , a) , (M2[1] , a , "L")) for a in alphab] , l02)
+            
+
+    for ((x1,x2),(y1 , y2 , y3)) in l0 : #On pouvait la transformer en une fonction tellement on a utilise la meme procedure 
+        tmp = x1
+        x = (0,tmp)
+        tmp = y1
+        y = (0,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l1 : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (1,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in d2 : 
+        tmp = x1
+        x = (2,tmp)
+        tmp = y1
+        y = (2,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l12 : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (2,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l01 : 
+        tmp = x1
+        x = (0,tmp)
+        tmp = y1
+        y = (1,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in l02 : 
+        tmp = x1
+        x = (0,tmp)
+        tmp = y1
+        y = (2,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    q0 = (0 , MC[1])
+    qok = (2 , M2[2])
+    qko = (2 , M2[3])
+
+    return (d, q0 , qok , qko)
+
+M_abs = make_cond_MT(M_isneg , M_opp_int_bin , M_id)
 
 # Composition de machines de Turing : boucle
 #-------------------------------------------
@@ -316,7 +412,65 @@ def exec_loop_MT_1(MC,M,L,i0):
 
 def make_loop_MT(MC,M):
     # MC,M : machines de Turing deterministes a 1 bande
-    return
+        
+    d = []
+
+    lc = [(x1,x2) for (x1,x2) in MC[0] if x2[0] != MC[2]]    
+    lcm = [(x1, (M[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in MC[0] if y1 == MC[2]] 
+    lm = [(x1,x2) for (x1,x2) in M[0] if x2[0] != M[2]]
+    lmc = [(x1, (MC[1] , y2  , y3)) for (x1, (y1 , y2 , y3)) in M[0] if y1 == M[2]] 
+
+    alphab = alphabet(M)
+
+    if M[0] == []:
+        if M[1] == M[2]:
+            lm = union(eq_atom , [((M[1] , a) , (M[2] , a , "R")) for a in alphab] , lm)
+            lmc = union(eq_atom , [((M[2] , a) , (MC[1] , a , "L")) for a in alphab] , lmc)
+        if M[1] == M[3]:
+            lm = union(eq_atom , [((M[1] , a) , (M[3] , a , "R")) for a in alphab] , lm)
+
+    if MC[0] == []:
+        if MC[1] == MC[2]:
+            lc = union(eq_atom , [((MC[1] , a) , (MC[2] , a , "R")) for a in alphab] , lc)
+            lcm = union(eq_atom , [((MC[2] , a) , (M[1] , a , "L")) for a in alphab] , lcm)
+        if MC[1] == MC[3]:
+            lc = union(eq_atom , [((MC[1] , a) , (MC[3] , a , "R")) for a in alphab] , lc)
+
+    for ((x1,x2),(y1 , y2 , y3)) in lc : 
+        tmp = x1
+        x = (0,tmp)
+        tmp = y1
+        y = (0,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in lcm : 
+        tmp = x1
+        x = (0,tmp)
+        tmp = y1
+        y = (1,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    for ((x1,x2),(y1 , y2 , y3)) in lm : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (1,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+   
+    for ((x1,x2),(y1 , y2 , y3)) in lmc : 
+        tmp = x1
+        x = (1,tmp)
+        tmp = y1
+        y = (0,y1)
+        d = ajout(eq_atom , ((x,x2),(y , y2 , y3)) , d)
+
+    q0 = (0 , MC[1])
+    qok = (0 , MC[3])
+    qko = (1 , M[3])
+
+    return (d, q0 , qok , qko)
+
+M_foo1 = make_loop_MT(M_eq_0 , M_Right_bin)
 
 #======================================================================#
 # Machines de Turing deterministes a k bandes                          #
