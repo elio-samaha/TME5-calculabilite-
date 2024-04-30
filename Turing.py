@@ -472,6 +472,13 @@ def make_loop_MT(MC,M):
 
 M_foo1 = make_loop_MT(M_eq_0 , M_Right_bin)
 
+M_foo0 = make_cond_MT(M_isneg , M_prop1 , M_id) 
+M_foo2 = make_seq_MT(M_foo0 , M_foo1)
+M_foo3 = make_seq_MT(M_Right_bin , M_compl_bin)
+M_eq_Z = make_test_eq("Z" , ["0","1","Z"])
+M_foo4 = make_cond_MT(M_eq_Z , M_id , M_foo3)
+M_foo  = make_seq_MT(M_foo2 , M_foo4)
+
 #======================================================================#
 # Machines de Turing deterministes a k bandes                          #
 #======================================================================#
@@ -481,7 +488,7 @@ M_foo1 = make_loop_MT(M_eq_0 , M_Right_bin)
 # M = (d,q0,qok,qko)
 #
 # d = [((q,(a1,...,an)),(q',(a'1,...,a'n),(m1,...,mn))),...]
-#
+#ls
 # bandes : L = [L1,...,Ln]
 #
 
