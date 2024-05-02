@@ -500,12 +500,52 @@ def print_config_k(L,T,q,qok,qko,k):
         print_config_1(L[i],T[i],q,qok,qko)
 
 
-def exec_MT_k(M,k,L,T):
+def exec_MT_k(M,k,L0,T):
     # M : machine de Turing deterministe a k bandes
     # k : nombre de bandes
     # L : liste des representations des bandes initiales
     # T : positions initiales des k tetes de lecture
-    return
+
+    (d,q0,qok,qko) = M
+
+    L = L0
+    curr = q0
+    T0 = T
+    Mv = ()
+    print_config_k(L , T , curr , qok , qko , k)
+
+    A = tuple([L[i][T0[i]] for i in range(k)])
+
+    while curr != qko and curr != qok :
+        if assoc_f(d,(curr,A)) == None :
+            curr = qko
+            break
+        
+        #curr , A , Mv = assoc_f(d,(curr,A))
+        for (curr , A) in d:
+            if curr == d[0][0] and A == d[0][1]:
+                print(d[1] , flush = True)
+                (tcurr , tA , tMv) = d[1]
+        #print(assoc_f(d,(curr,A)) , flush = True)
+        #A = tuple([L[i][T0[i]] for i in range(k)]) 
+        (curr , A , Mv) = (tcurr , tA , tMv)
+        for i in range(k):
+            L[i][T0[i]] = A[i]
+            if Mv[i] == "R" :
+                T0[i] += 1
+
+            if Mv[i] == "L" :
+                T0[i] -= 1
+
+            if T0[i] >= len(L[i]) :
+                L[i].append("Z")
+            if T0[i] < 0 :
+                L[i].insert(0 , "Z")
+                T0[i] = 0
+        #print_config_k(L , T , curr , qok , qko , k)
+
+
+    return ((curr == qok),T,L)
 
 # mots sur {a,b} contenant autant de a que de b
 #
