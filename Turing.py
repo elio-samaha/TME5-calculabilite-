@@ -514,21 +514,17 @@ def exec_MT_k(M,k,L0,T):
     Mv = ()
     print_config_k(L , T , curr , qok , qko , k)
 
-    A = tuple([L[i][T0[i]] for i in range(k)])
 
     while curr != qko and curr != qok :
+        
+        A = tuple([L[i][T0[i]] for i in range(k)])
+    
         if assoc_f(d,(curr,A)) == None :
             curr = qko
             break
         
-        #curr , A , Mv = assoc_f(d,(curr,A))
-        for (curr , A) in d:
-            if curr == d[0][0] and A == d[0][1]:
-                print(d[1] , flush = True)
-                (tcurr , tA , tMv) = d[1]
-        #print(assoc_f(d,(curr,A)) , flush = True)
-        #A = tuple([L[i][T0[i]] for i in range(k)]) 
-        (curr , A , Mv) = (tcurr , tA , tMv)
+        curr , A , Mv = assoc_f(d,(curr,A))
+        
         for i in range(k):
             L[i][T0[i]] = A[i]
             if Mv[i] == "R" :
@@ -542,7 +538,8 @@ def exec_MT_k(M,k,L0,T):
             if T0[i] < 0 :
                 L[i].insert(0 , "Z")
                 T0[i] = 0
-        #print_config_k(L , T , curr , qok , qko , k)
+        
+        print_config_k(L , T , curr , qok , qko , k)
 
 
     return ((curr == qok),T,L)
@@ -566,3 +563,65 @@ d2_ex1 = [((0,("a","Z")),(1,("a","X"),("R","R"))),\
 
 
 M2_ex1 = (d2_ex1,0,3,4)
+
+# L = { a^nb^nc^n | n entier naturel }
+# etat acceptant : 1
+
+d2_anbncn = [((0,("Z","Z")),(1,("Z","Z"),("R","R"))), \
+             ((0,("a","Z")),(2,("a","A"),("R","R"))), \
+             ((2,("a","Z")),(2,("a","A"),("R","R"))), \
+             ((2,("b","Z")),(3,("b","Z"),("S","L"))), \
+             ((3,("b","A")),(3,("b","B"),("R","L"))), \
+             ((3,("c","Z")),(4,("c","Z"),("S","R"))), \
+             ((4,("c","B")),(4,("c","C"),("R","R"))), \
+             ((4,("Z","Z")),(1,("Z","Z"),("R","R")))]
+
+
+
+M2_anbncn = (d2_anbncn,0,1,5)
+
+# Exemple 9 : 
+# On ecrit sur la 2eme bande le mot a l envers puis on commence a comparer les caracteres sur les deux bandes a la meme position i.e pour tout i allant de 0 a len(mot) - 1 : 
+# si L[0][i] != L[1][i] on s'arrete et c est donc faux et si on passe tout les tests et on lit la case vide alors c est bon le mot est un palindrome 
+
+d2_palin_bin = [((0, ("1", "Z")), (0, ("1", "1"), ("R", "R"))), \
+                ((0, ("0", "Z")), (0, ("0", "0"), ("R", "R"))), \
+                ((0, ("Z", "Z")), (1, ("Z", "Z"), ("L", "S"))), \
+                ((1, ("0", "Z")), (1, ("0", "Z"), ("L", "S"))), \
+                ((1, ("1", "Z")), (1, ("1", "Z"), ("L", "S"))), \
+                ((1, ("Z", "Z")), (2, ("Z", "Z"), ("R", "L"))), \
+                ((2, ("0", "0")), (2, ("X", "X"), ("R", "L"))), \
+                ((2, ("1", "1")), (2, ("X", "X"), ("R", "L"))), \
+                ((2, ("Z", "Z")), (3, ("Z", "Z"), ("S", "S"))), \
+                ((4, ("1", "Z")), (0, ("1", "Z"), ("S", "S"))), \
+                ((4, ("0", "Z")), (0, ("0", "Z"), ("S", "S"))), \
+                ((4, ("Z", "Z")), (5, ("Z", "Z"), ("R", "R"))), \
+                ((5, ("Z", "Z")), (3, ("Z", "Z"), ("L", "L"))), 
+                ]
+                
+M2_palin_bin = (d2_palin_bin, 4, 3, 6)
+
+# Exemple 10 (fait en TD) : On laisse un pointeur sur le 1er 0 en commencant par les bits de poids faible 
+# (*) : (car en ajoutant 1 on n'a qu a mettre le 0 a 1 et tous les 1 d avant a 0 et si on n a pas un tel 0 on laisse le 1er 1 en 1 et on mets tout les autres a 0 et on ajoute a la fin un 0)
+# Plus simplement, les etapes a faire : se placer sur le 0 le plus a droite en allant a gauche tant qu il y a des 1 (on suppose qu on est positioné a la fin du binaire courant)-- 
+# ---> on fait (*) ---> on revient a la fin du binaire valide et on recommence les etapes. 
+
+d2_un_to_bin = [((0,("$","Z")),(1,("$","$"),("R","R"))), \
+                ((1,("Z","Z")),(8,("Z","0"),("S","S"))), \
+                ((1,("I","Z")),(2,("I","1"),("R","R"))), \
+                ((2,("Z","Z")),(9,("Z","Z"),("S","L"))), \
+                ((9,("Z","0")),(9,("Z","0"),("S","L"))), \
+                ((9,("Z","1")),(9,("Z","1"),("S","L"))), \
+                ((9,("Z","$")),(8,("Z","$"),("S","R"))), \
+                ((2,("I","Z")),(3,("I","Z"),("S","L"))), \
+                ((3,("I","1")),(3,("I","1"),("S","L"))), \
+                ((3,("I","0")),(4,("I","1"),("S","R"))), \
+                ((4,("I","1")),(4,("I","0"),("S","R"))), \
+                ((4,("I","Z")),(2,("I","Z"),("R","S"))), \
+                ((3,("I","$")),(5,("I","$"),("S","R"))), \
+                ((5,("I","1")),(6,("I","1"),("S","R"))), \
+                ((6,("I","1")),(6,("I","0"),("S","R"))), \
+                ((6,("I","Z")),(7,("I","0"),("S","R"))), \
+                ((7,("I","Z")),(2,("I","Z"),("R","S")))]
+
+M2_un_to_bin = (d2_un_to_bin, 0, 8,10)
